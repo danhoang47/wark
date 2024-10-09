@@ -1,17 +1,19 @@
 package common
 
-import "time"
+import (
+	"time"
 
-type GUID string
+	"github.com/google/uuid"
+)
 
 const (
 	Available = iota
 	Deleted
 )
 
-type CommonSQL struct {
-	Id        GUID      `json:"id"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	Status    int       `json:"status"`
+type SQLModel struct {
+	Id        uuid.UUID `json:"id" db:"id"`
+	CreatedAt time.Time `json:"createdAt" db:"created_at"`
+	UpdatedAt time.Time `json:"updatedAt" db:"updated_at"`
+	Status    int       `json:"status" db:"status"`
 }

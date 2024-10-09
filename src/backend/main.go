@@ -1,13 +1,17 @@
 package main
 
 import (
-	"context"
 	"log"
 	"os"
+	appcontext "wark/components/app_context"
+	"wark/middlewares"
+	"wark/routes"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5"
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
+	"github.com/redis/go-redis/v9"
 )
 
 func main() {
@@ -17,14 +21,31 @@ func main() {
 		log.Fatal(err)
 	}
 
-	ctx := context.Background()
-	_, err = pgx.Connect(ctx, os.Getenv("POSTGRES_URL"))
+	db, err := sqlx.Connect("pgx", os.Getenv("POSTGRES_URL"))
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	r := gin.Default()
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:     os.Getenv("REDIS_URL"),
+		Password: os.Getenv("REDIS_PASSWORD"),
+		DB:       0,
+	})
+
+	appCtx := appcontext.New(db, redisClient, os.Getenv("SECRET_KEY"))
+
+	r := gin.New(func(e *gin.Engine) {
+		e.Handlers = append(
+			e.Handlers,
+			gin.Logger(),
+			middlewares.Recovery(),
+		)
+	})
+
+	v1 := r.Group("/v1")
+
+	routes.ConfigUserRoutes(v1, appCtx)
 
 	r.SetTrustedProxies(nil)
 	r.RunTLS(

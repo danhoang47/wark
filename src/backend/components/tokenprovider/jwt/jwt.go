@@ -1,8 +1,9 @@
 package jwt
 
 import (
+	"errors"
+	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -12,13 +13,13 @@ type jwtProvider struct {
 	secret string
 }
 
-var (
-	SECRET_KEY = os.Getenv("SECRET_KEY")
-)
-
 func New(secret string) *jwtProvider { return &jwtProvider{secret} }
 
-func (*jwtProvider) Generate(id string, expiry time.Duration) string {
+func (j *jwtProvider) Generate(id string, expiry time.Duration) (string, error) {
+	if j.secret == "" {
+		log.Fatalln("No SECRET_KEY provided")
+	}
+
 	registerdClaims := jwt.RegisteredClaims{
 		Issuer:    "wark.com",
 		Subject:   id,
@@ -26,32 +27,32 @@ func (*jwtProvider) Generate(id string, expiry time.Duration) string {
 		IssuedAt:  &jwt.NumericDate{Time: time.Now()},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, registerdClaims)
-	tokenString, err := token.SignedString([]byte(SECRET_KEY))
+	tokenString, err := token.SignedString([]byte(j.secret))
 
 	if err != nil {
-		log.Fatal(err)
+		return "", fmt.Errorf("cannot generate token for id: %s", id)
 	}
 
-	return tokenString
+	return tokenString, nil
 }
 
-// func (*jwtProvider) Verify(tokenString string) (string, error) {
-// 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-// 		return jwtProvider.secret, nil
-// 	})
+func (j *jwtProvider) Verify(tokenString string) (string, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return []byte(j.secret), nil
+	})
 
-// 	switch {
-// 	case token.Valid:
-// 		claims, ok := token.Claims.(jwt.RegisteredClaims)
+	switch {
+	case token.Valid:
+		claims, ok := token.Claims.(jwt.RegisteredClaims)
 
-// 		if !ok {
-// 			log.Fatalln("Claims is not of type jwt.RegisteredClaims")
-// 		}
+		if !ok {
+			log.Fatalln("Claims is not of type jwt.RegisteredClaims")
+		}
 
-// 		return claims.Subject, nil
-// 	case errors.Is(err, jwt.ErrTokenExpired) || errors.Is(err, jwt.ErrTokenNotValidYet):
-// 		log.Fatalln("Token is not expire")
-// 	}
+		return claims.Subject, nil
+	case errors.Is(err, jwt.ErrTokenExpired) || errors.Is(err, jwt.ErrTokenNotValidYet):
+		panic(jwt.ErrTokenExpired)
+	}
 
-// 	return "", nil
-// }
+	return "", nil
+}

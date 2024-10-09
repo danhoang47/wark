@@ -7,9 +7,9 @@ import (
 
 func TestGenerate(t *testing.T) {
 	jwtProvider := New("ABCD")
-	token := jwtProvider.Generate("asdasdasdasdasdad", time.Second*15)
+	token, err := jwtProvider.Generate("asdasdasdasdasdad", time.Second*15)
 
-	if token == "" {
+	if token == "" || err != nil {
 		t.Fail()
 		t.Logf("Cannot generate token with %v", token)
 	}

@@ -1,7 +1,14 @@
 package routes
 
-import "github.com/gin-gonic/gin"
+import (
+	appcontext "wark/components/app_context"
+	"wark/modules/users/usertrans"
 
-func ConfigUserRoutes(c *gin.Context) {
+	"github.com/gin-gonic/gin"
+)
 
+func ConfigUserRoutes(c *gin.RouterGroup, appCtx appcontext.AppContext) {
+	userGroup := c.Group("/users")
+
+	userGroup.POST("/signup", usertrans.Register(appCtx))
 }
