@@ -1,23 +1,15 @@
 package hasher
 
-import (
-	"crypto/sha256"
-	"encoding/hex"
-	"log"
-)
+import "encoding/base64"
 
-type sha256Hash struct{}
+type Hasher interface {
+	Hash([]byte) string
+}
 
-func NewSHA256Hash() *sha256Hash { return new(sha256Hash) }
+type hasher struct{}
 
-func (*sha256Hash) Hash(data string) string {
-	hasher := sha256.New()
+func New() Hasher { return &hasher{} }
 
-	_, err := hasher.Write([]byte(data))
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return hex.EncodeToString(hasher.Sum(nil))
+func (*hasher) Hash(b []byte) string {
+	return base64.StdEncoding.EncodeToString(b)
 }

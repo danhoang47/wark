@@ -1,6 +1,8 @@
 package tokenprovider
 
+import "time"
+
 type Provider interface {
-	Generate(id string) (string, error)
-	Verify(token string) (string, error)
+	Generate(string, time.Duration) (string, error)
+	Verify(string) (string, error)
 }

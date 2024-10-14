@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Register(appCtx appcontext.AppContext) gin.HandlerFunc {
+func Login(appCtx appcontext.AppContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var createUser *usermodels.CreateUser
 
