@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-const MAX_SALT_CHAR = 10
+const MAX_SALT_CHAR = 12
 
 var letters []rune = []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/")
 var maxIndex *big.Int = big.NewInt(MAX_SALT_CHAR)

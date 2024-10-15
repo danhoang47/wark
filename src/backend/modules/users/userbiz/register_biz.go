@@ -18,7 +18,9 @@ type registerUserBiz struct {
 	userRepo RegisterUserRepository
 }
 
-func New(userRepo RegisterUserRepository) *registerUserBiz { return &registerUserBiz{userRepo} }
+func NewRegisterUserBiz(userRepo RegisterUserRepository) *registerUserBiz {
+	return &registerUserBiz{userRepo}
+}
 
 func (biz *registerUserBiz) Register(hasher hasher.Hasher, u *usermodels.CreateUser) (int, error) {
 	if err := u.Validate(); err != nil {

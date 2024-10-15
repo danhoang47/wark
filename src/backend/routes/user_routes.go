@@ -11,4 +11,5 @@ func ConfigUserRoutes(c *gin.RouterGroup, appCtx appcontext.AppContext) {
 	userGroup := c.Group("/users")
 
 	userGroup.POST("/register", usertrans.Register(appCtx))
+	userGroup.POST("/login", usertrans.Login(appCtx))
 }

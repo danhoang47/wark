@@ -30,7 +30,7 @@ func (j *jwtProvider) Generate(id string, expiry time.Duration) (string, error) 
 	tokenString, err := token.SignedString([]byte(j.secret))
 
 	if err != nil {
-		return "", fmt.Errorf("cannot generate token for id: %s", id)
+		return "", fmt.Errorf("%w, cannot generate token for id: %s", err, id)
 	}
 
 	return tokenString, nil
@@ -40,6 +40,8 @@ func (j *jwtProvider) Verify(tokenString string) (string, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return []byte(j.secret), nil
 	})
+
+	log.Println(token.Claims)
 
 	switch {
 	case token.Valid:

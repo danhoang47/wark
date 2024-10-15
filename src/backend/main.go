@@ -46,6 +46,7 @@ func main() {
 	v1 := r.Group("/v1")
 
 	routes.ConfigUserRoutes(v1, appCtx)
+	routes.ConfigTasksRoutes(v1, appCtx)
 
 	r.SetTrustedProxies(nil)
 	r.RunTLS(

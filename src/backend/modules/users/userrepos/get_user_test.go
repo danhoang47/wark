@@ -13,8 +13,8 @@ func TestGetUserWithConds(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	getOneUserRepo := NewGetOneUserRepo(db)
-	user, err := getOneUserRepo.GetOne(&GetOneUserOptions{
+	getOneUserRepo := NewGetUserRepo(db)
+	user, err := getOneUserRepo.GetUser(&GetOneUserOptions{
 		Id: "01928b50-710b-74a1-8723-4f762c0dd1d0",
 	})
 

@@ -22,7 +22,7 @@ func Register(appCtx appcontext.AppContext) gin.HandlerFunc {
 
 		hasher := hasher.New()
 		addUserRepo := userrepos.NewAddUserRepo(appCtx.GetDB())
-		registerUserBiz := userbiz.New(addUserRepo)
+		registerUserBiz := userbiz.NewRegisterUserBiz(addUserRepo)
 
 		if r, err := registerUserBiz.Register(hasher, createUser); err == nil && r == 1 {
 			c.JSON(http.StatusCreated, common.Response{
