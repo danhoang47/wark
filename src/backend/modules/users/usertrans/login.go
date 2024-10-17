@@ -38,7 +38,7 @@ func Login(appCtx appcontext.AppContext) gin.HandlerFunc {
 				})
 			}
 
-			c.SetCookie("access_token", token, 15*60, "/", "*", false, false)
+			c.SetCookie("access_token", token, 15*60, "/", "localhost", false, false)
 			c.JSON(http.StatusOK, common.Response{
 				ErrorCode: 0,
 				Data:      user,

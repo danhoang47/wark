@@ -1,9 +1,7 @@
 package middlewares
 
 import (
-	"context"
-	"database/sql"
-	"errors"
+	"log"
 
 	"wark/common"
 	appcontext "wark/components/app_context"
@@ -24,31 +22,28 @@ func Auth(appCtx appcontext.AppContext) gin.HandlerFunc {
 		jwtProvider := jwt.New(appCtx.GetSecret())
 		id, err := jwtProvider.Verify(accessToken)
 
+		log.Println(id)
+
 		if err != nil {
+			log.Fatalln(err)
 			panic(err)
 		}
 
-		var user *usermodels.User
-		context := context.Background()
-		memCached := appCtx.GetMemCached()
+		user := &usermodels.User{}
 		db := appCtx.GetDB()
-		userMemCachedKey := common.GetUserMemCachedKey(id)
-		userJson, err := memCached.JSONGet(context, userMemCachedKey, "$").Result()
+		// userMemCachedKey := common.GetUserMemCachedKey(id)
+		// userJson, err := memCached.JSONGet(context, userMemCachedKey, "$").Result()
 
-		if userJson == common.EmptyCachedValue {
+		// if userJson == common.EmptyCachedValue {
+		// 	panic(common.ErrUserNotFound)
+		// }
+
+		if err := db.Get(user, `SELECT * FROM users WHERE id = $1`, id); err != nil {
+			c.Abort()
 			panic(common.ErrUserNotFound)
 		}
 
-		if err != nil {
-			err := db.Get(user, "SELECT * FROM USER WHERE id = $1", id)
-
-			if errors.Is(err, sql.ErrNoRows) {
-				memCached.JSONSet(context, userMemCachedKey, "$", common.EmptyCachedValue)
-				panic(common.ErrUserNotFound)
-			} else {
-				memCached.JSONSet(context, userMemCachedKey, "$", user)
-			}
-		}
+		log.Println(user)
 
 		c.Set("user", user)
 		c.Next()

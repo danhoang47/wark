@@ -25,6 +25,13 @@ func Recovery() gin.HandlerFunc {
 						http.StatusBadRequest,
 						common.Response{},
 					)
+				case errors.Is(err, common.ErrUserNotFound):
+					c.JSON(
+						http.StatusOK,
+						common.Response{
+							Message: "user not found",
+						},
+					)
 				}
 			}
 		}()

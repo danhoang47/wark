@@ -1,7 +1,6 @@
 package jwt
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -37,24 +36,18 @@ func (j *jwtProvider) Generate(id string, expiry time.Duration) (string, error) 
 }
 
 func (j *jwtProvider) Verify(tokenString string) (string, error) {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return []byte(j.secret), nil
-	})
+	claims := &jwt.RegisteredClaims{}
 
-	log.Println(token.Claims)
+	token, err := jwt.ParseWithClaims(
+		tokenString,
+		claims,
+		func(token *jwt.Token) (interface{}, error) {
+			return []byte(j.secret), nil
+		})
 
-	switch {
-	case token.Valid:
-		claims, ok := token.Claims.(jwt.RegisteredClaims)
-
-		if !ok {
-			log.Fatalln("Claims is not of type jwt.RegisteredClaims")
-		}
-
+	if token.Valid {
 		return claims.Subject, nil
-	case errors.Is(err, jwt.ErrTokenExpired) || errors.Is(err, jwt.ErrTokenNotValidYet):
-		panic(jwt.ErrTokenExpired)
 	}
 
-	return "", nil
+	return "", err
 }

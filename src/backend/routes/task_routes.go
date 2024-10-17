@@ -14,4 +14,5 @@ func ConfigTasksRoutes(c *gin.RouterGroup, appCtx appcontext.AppContext) {
 	tasksRoutes.Use(middlewares.Auth(appCtx))
 
 	tasksRoutes.GET("", tasktrans.GetTasks(appCtx))
+	tasksRoutes.POST("", tasktrans.CreateTask(appCtx))
 }
