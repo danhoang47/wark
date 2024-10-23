@@ -49,9 +49,5 @@ func main() {
 	routes.ConfigTasksRoutes(v1, appCtx)
 
 	r.SetTrustedProxies(nil)
-	r.RunTLS(
-		os.Getenv("DOMAIN")+":"+os.Getenv("PORT"),
-		"./wark-com.crt",
-		"./wark-com-privateKey.key",
-	)
+	r.Run(os.Getenv("DOMAIN") + ":" + os.Getenv("PORT"))
 }
