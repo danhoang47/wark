@@ -1,7 +1,7 @@
 package common
 
 const (
-	EmptyCachedValue = ""
+	EmptyCachedValue = "EMPTY_VALUE"
 )
 
 const (
