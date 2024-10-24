@@ -18,3 +18,8 @@ type SQLModel struct {
 	UpdatedAt time.Time    `json:"updatedAt" db:"updated_at"`
 	Status    *pgtype.Bits `json:"-" db:"status"`
 }
+
+type Paging struct {
+	Cursor     uuid.UUID `json:"cursor"`
+	NextCursor uuid.UUID `json:"nextCursor"`
+}

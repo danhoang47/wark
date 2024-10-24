@@ -56,3 +56,7 @@ func (task *CreateTask) ToTask(status byte) *Task {
 
 	return t
 }
+
+type GetTaskConds struct {
+	common.Paging
+}
