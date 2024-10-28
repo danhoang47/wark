@@ -67,6 +67,7 @@ func Auth(appCtx appcontext.AppContext) gin.HandlerFunc {
 		case <-timeOutCtx.Done():
 			panic(common.ErrUserNotFound)
 		case userJson = <-ch:
+			break
 		}
 
 		switch userJson {
@@ -87,7 +88,7 @@ func Auth(appCtx appcontext.AppContext) gin.HandlerFunc {
 				log.Println("cannot set expire for key ", userMemCachedKey)
 			}
 		default:
-			if err := json.Unmarshal([]byte(userJson[1:len(userJson)-1]), &user); err != nil {
+			if err := json.Unmarshal([]byte(userJson), &user); err != nil {
 				panic(err)
 			}
 		}

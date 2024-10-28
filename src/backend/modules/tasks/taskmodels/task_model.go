@@ -3,6 +3,8 @@ package taskmodels
 import (
 	"time"
 	"wark/common"
+	"wark/modules/categories/categorymodels"
+	"wark/modules/priorities/prioritymodels"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -59,4 +61,15 @@ func (task *CreateTask) ToTask(status byte) *Task {
 
 type GetTaskConds struct {
 	common.Paging
+}
+
+type AggregatedTask struct {
+	common.SQLModel
+	ParentId    uuid.UUID                    `json:"parentId" db:"parent_id"`
+	Title       string                       `json:"title" db:"title"`
+	Description string                       `json:"description" db:"description"`
+	DueDate     time.Time                    `json:"dueDate" db:"due_date"`
+	TaskStatus  int8                         `json:"taskStatus" db:"task_status"`
+	Priority    prioritymodels.TaskPriority  `json:"priority"`
+	Categories  []categorymodels.GetCategory `json:"categories"`
 }
