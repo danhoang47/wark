@@ -17,6 +17,7 @@ type getTasksRepo struct {
 func NewGetTasksRepo(db *sqlx.DB) *getTasksRepo { return &getTasksRepo{db} }
 
 func (repo *getTasksRepo) GetTasks(userId string, conds *taskmodels.GetTaskConds) []taskmodels.AggregatedTask {
+	// TODO: map doesn't preverse order
 	taskMap := map[uuid.UUID]taskmodels.AggregatedTask{}
 
 	sqlBuilder := &strings.Builder{}
@@ -32,10 +33,10 @@ func (repo *getTasksRepo) GetTasks(userId string, conds *taskmodels.GetTaskConds
 		WHERE t.creator_id = :userId
 	`)
 
-	if err := uuid.Validate(string(conds.NextCursor[:])); err != nil {
-		log.Println("nextCursor not provided")
+	if conds.NextCursor.Valid {
+		sqlBuilder.WriteString(` AND t.id < :nextCursor`)
 	} else {
-		sqlBuilder.WriteString(` AND id < :nextCursor`)
+		log.Println("nextCursor not provided")
 	}
 
 	sqlBuilder.WriteString(` ORDER BY t.updated_at DESC LIMIT 20`)
@@ -52,10 +53,11 @@ func (repo *getTasksRepo) GetTasks(userId string, conds *taskmodels.GetTaskConds
 
 	rows, err := namedStmt.Queryx(map[string]interface{}{
 		"userId":     userId,
-		"nextCursor": conds.NextCursor,
+		"nextCursor": conds.NextCursor.UUID.String(),
 	})
 
 	if err != nil {
+		log.Println(err)
 		panic(err)
 	}
 
@@ -73,6 +75,8 @@ func (repo *getTasksRepo) GetTasks(userId string, conds *taskmodels.GetTaskConds
 
 		taskMap[task.Id] = task
 	}
+
+	log.Println("task len: ", len(taskMap))
 
 	if len(taskMap) == 0 {
 		return []taskmodels.AggregatedTask{}

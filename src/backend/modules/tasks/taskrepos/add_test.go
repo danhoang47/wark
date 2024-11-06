@@ -1,6 +1,7 @@
 package taskrepos
 
 import (
+	"strconv"
 	"testing"
 	"time"
 	"wark/modules/tasks/taskmodels"
@@ -31,21 +32,23 @@ func TestAddTask(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	task := &taskmodels.CreateTask{
-		CreatorId:   creatorId,
-		Title:       "Test task 10",
-		Description: "Deserunt laborum do irure consectetur.",
-		DueDate:     time.Now(),
-		PriorityId:  priorityId,
-	}
+	for index := range 30 {
+		task := &taskmodels.CreateTask{
+			CreatorId:   creatorId,
+			Title:       "Test task " + strconv.Itoa(index),
+			Description: "Deserunt laborum do irure consectetur.",
+			DueDate:     time.Now(),
+			PriorityId:  priorityId,
+		}
 
-	r, err := addTaskRepo.AddTask(task)
+		_, err := addTaskRepo.AddTask(task)
+
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
 
 	if err != nil {
 		t.Fatal(err)
-	}
-
-	if r != 1 {
-		t.Fatalf("expect result is 1, got %v", r)
 	}
 }

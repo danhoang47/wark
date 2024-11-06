@@ -20,6 +20,6 @@ type SQLModel struct {
 }
 
 type Paging struct {
-	Cursor     uuid.UUID `json:"cursor"`
-	NextCursor uuid.UUID `json:"nextCursor"`
+	Cursor     uuid.UUID     `json:"cursor,omitempty"`
+	NextCursor uuid.NullUUID `json:"nextCursor,omitempty"`
 }
