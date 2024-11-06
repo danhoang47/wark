@@ -42,11 +42,10 @@ func (repo *addUserRepo) Add(createUser *usermodels.CreateUser) (int, error) {
 	}
 
 	id, _ := uuid.NewV7()
-	status := pgtype.Bits{Bytes: []byte{0}, Len: 1, Valid: true}
 	user := usermodels.User{
 		SQLModel: common.SQLModel{
 			Id:     id,
-			Status: &status,
+			Status: pgtype.Bits{Bytes: []byte{1}, Len: 1, Valid: true},
 		},
 		Username: createUser.Username,
 		Password: createUser.Password,

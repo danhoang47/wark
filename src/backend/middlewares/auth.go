@@ -38,36 +38,16 @@ func Auth(appCtx appcontext.AppContext) gin.HandlerFunc {
 		db := appCtx.GetDB()
 		memCached := appCtx.GetMemCached()
 
-		ctx := context.Background()
-		timeOutCtx, cancel := context.WithTimeout(ctx, time.Second*3)
+		timeOutCtx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
 
 		user := usermodels.User{}
 		userMemCachedKey := common.GetUserMemCachedKey(id)
-		var userJson string
 
-		ch := make(chan string)
+		userJson, err := memCached.JSONGet(timeOutCtx, userMemCachedKey, JSONRootPath).Result()
 
-		go func() {
-			userJson, err := memCached.JSONGet(timeOutCtx, userMemCachedKey, JSONRootPath).Result()
-
-			if err != nil {
-				log.Fatalln(err)
-			}
-
-			if len(userJson) != 0 {
-				ch <- userJson[1 : len(userJson)-1]
-			} else {
-				ch <- userJson
-			}
-
-		}()
-
-		select {
-		case <-timeOutCtx.Done():
-			panic(common.ErrUserNotFound)
-		case userJson = <-ch:
-			break
+		if err != nil {
+			panic(err)
 		}
 
 		switch userJson {
@@ -88,7 +68,7 @@ func Auth(appCtx appcontext.AppContext) gin.HandlerFunc {
 				log.Println("cannot set expire for key ", userMemCachedKey)
 			}
 		default:
-			if err := json.Unmarshal([]byte(userJson), &user); err != nil {
+			if err := json.Unmarshal([]byte(userJson[1:len(userJson)-1]), &user); err != nil {
 				panic(err)
 			}
 		}

@@ -15,4 +15,5 @@ func ConfigTaskRoutes(c *gin.RouterGroup, appCtx appcontext.AppContext) {
 
 	tasksRoutes.GET("", tasktrans.GetTasks(appCtx))
 	tasksRoutes.POST("", tasktrans.CreateTask(appCtx))
+	tasksRoutes.PUT("/:id/categories", tasktrans.UpdateTaskCategories(appCtx))
 }

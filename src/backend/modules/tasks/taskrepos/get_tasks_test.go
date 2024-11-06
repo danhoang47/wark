@@ -17,6 +17,10 @@ func TestGenerateSqlQuery(t *testing.T) {
 
 	getTasksRepo := NewGetTasksRepo(db)
 
+	if err != nil {
+		panic(err)
+	}
+
 	tasks := getTasksRepo.GetTasks("0192909b-f6bd-747f-8db7-4690486be5b2", &taskmodels.GetTaskConds{})
 
 	if len(tasks) == 0 {

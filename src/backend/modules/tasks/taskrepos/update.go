@@ -2,19 +2,18 @@ package taskrepos
 
 import (
 	"context"
-	"log"
 	"wark/modules/tasks/taskmodels"
 
 	"github.com/jmoiron/sqlx"
 )
 
-type addTaskRepo struct {
+type updateTaskRepo struct {
 	db *sqlx.DB
 }
 
-func NewAddTaskRepo(db *sqlx.DB) *addTaskRepo { return &addTaskRepo{db} }
+func NewUpdateTaskRepo(db *sqlx.DB) *updateTaskRepo { return &updateTaskRepo{db} }
 
-func (repo *addTaskRepo) AddTask(task *taskmodels.CreateTask) (int64, error) {
+func (repo *updateTaskRepo) UpdateTask(task *taskmodels.Task) (int64, error) {
 	ctx := context.Background()
 	tx, err := repo.db.BeginTxx(ctx, nil)
 
@@ -24,27 +23,23 @@ func (repo *addTaskRepo) AddTask(task *taskmodels.CreateTask) (int64, error) {
 	}
 
 	stmt, err := tx.PrepareNamed(`
-		INSERT 
-			INTO tasks(id, creator_id, parent_id,
-				title, description,
+		UPDATE tasks
+			SET (title, description,
 				due_date, priority_id,
-				task_status, status)
-			VALUES(
-				:id, :creator_id, :parent_id,
+				task_status, updated_at)
+			= (
 				:title, :description,
 				:due_date, :priority_id,
-				:task_status, 1::::bit
+				:task_status, CURRENT_TIMESTAMP
 			)
+		WHERE id = :id
 	`)
 
 	if err != nil {
-		log.Println(err)
 		panic(err)
 	}
 
-	t := task.ToTask(1)
-
-	result, err := stmt.Exec(t)
+	result, err := stmt.Exec(task)
 
 	if err != nil {
 		tx.Rollback()

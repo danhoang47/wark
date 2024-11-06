@@ -7,28 +7,27 @@ import (
 	"wark/modules/priorities/prioritymodels"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Task struct {
 	common.SQLModel
-	CreatorId   uuid.UUID `json:"creatorId" db:"creator_id"`
-	ParentId    uuid.UUID `json:"parentId" db:"parent_id"`
-	Title       string    `json:"title" db:"title"`
-	Description string    `json:"description" db:"description"`
-	DueDate     time.Time `json:"dueDate" db:"due_date"`
-	PriorityId  uuid.UUID `json:"priorityId" db:"priority_id"`
-	TaskStatus  int8      `json:"taskStatus" db:"task_status"`
+	CreatorId   uuid.UUID     `json:"creatorId" db:"creator_id"`
+	ParentId    uuid.NullUUID `json:"parentId" db:"parent_id"`
+	Title       string        `json:"title" db:"title"`
+	Description string        `json:"description" db:"description"`
+	DueDate     time.Time     `json:"dueDate" db:"due_date"`
+	PriorityId  uuid.UUID     `json:"priorityId" db:"priority_id"`
+	TaskStatus  int8          `json:"taskStatus" db:"task_status"`
 }
 
 type CreateTask struct {
-	CreatorId   uuid.UUID `json:"creatorId" db:"creator_id"`
-	ParentId    uuid.UUID `json:"parentId" db:"parent_id"`
-	Title       string    `json:"title" db:"title"`
-	Description string    `json:"description" db:"description"`
-	DueDate     time.Time `json:"dueDate" db:"due_date"`
-	PriorityId  uuid.UUID `json:"priorityId" db:"priority_id"`
-	TaskStatus  int8      `json:"taskStatus" db:"task_status"`
+	CreatorId   uuid.UUID     `json:"creatorId" db:"creator_id"`
+	ParentId    uuid.NullUUID `json:"parentId" db:"parent_id"`
+	Title       string        `json:"title" db:"title"`
+	Description string        `json:"description" db:"description"`
+	DueDate     time.Time     `json:"dueDate" db:"due_date"`
+	PriorityId  uuid.UUID     `json:"priorityId" db:"priority_id"`
+	TaskStatus  int8          `json:"taskStatus" db:"task_status"`
 }
 
 func (task *CreateTask) ToTask(status byte) *Task {
@@ -41,11 +40,6 @@ func (task *CreateTask) ToTask(status byte) *Task {
 	t := &Task{
 		SQLModel: common.SQLModel{
 			Id: uuid,
-			Status: &pgtype.Bits{
-				Bytes: []byte{status},
-				Len:   1,
-				Valid: true,
-			},
 		},
 		CreatorId:   task.CreatorId,
 		ParentId:    task.ParentId,
@@ -65,7 +59,7 @@ type GetTaskConds struct {
 
 type AggregatedTask struct {
 	common.SQLModel
-	ParentId    uuid.UUID                    `json:"parentId" db:"parent_id"`
+	ParentId    uuid.NullUUID                `json:"parentId,omitempty" db:"parent_id"`
 	Title       string                       `json:"title" db:"title"`
 	Description string                       `json:"description" db:"description"`
 	DueDate     time.Time                    `json:"dueDate" db:"due_date"`

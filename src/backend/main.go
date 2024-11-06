@@ -47,6 +47,8 @@ func main() {
 
 	routes.ConfigUserRoutes(v1, appCtx)
 	routes.ConfigTaskRoutes(v1, appCtx)
+	routes.ConfigPriorityRoutes(v1, appCtx)
+	routes.ConfigCategoryRoutes(v1, appCtx)
 
 	r.SetTrustedProxies(nil)
 	r.Run(os.Getenv("DOMAIN") + ":" + os.Getenv("PORT"))

@@ -3,6 +3,7 @@ package taskrepos
 import (
 	"testing"
 	"time"
+	"wark/common"
 	"wark/modules/tasks/taskmodels"
 
 	"github.com/google/uuid"
@@ -10,36 +11,31 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func TestAddTask(t *testing.T) {
+func TestUpdateTask(t *testing.T) {
 	db, err := sqlx.Open("pgx", "postgres://postgres:0000@localhost:5432/wark")
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	addTaskRepo := NewAddTaskRepo(db)
+	updateTaskRepo := NewUpdateTaskRepo(db)
 
-	creatorId, err := uuid.Parse("0192909b-f6bd-747f-8db7-4690486be5b2")
+	id := uuid.MustParse("0192cc3c-2271-73fd-8fe8-c6ece2018e45")
+	creatorId := uuid.MustParse("0192909b-f6bd-747f-8db7-4690486be5b2")
+	priorityId := uuid.MustParse("0192cc39-d486-7dbd-b968-368698f78126")
 
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	priorityId, err := uuid.Parse("0192cc39-d486-7dbd-b968-368698f78126")
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	task := &taskmodels.CreateTask{
+	task := &taskmodels.Task{
+		SQLModel: common.SQLModel{
+			Id: id,
+		},
 		CreatorId:   creatorId,
-		Title:       "Test task 10",
+		Title:       "Test task 6",
 		Description: "Deserunt laborum do irure consectetur.",
 		DueDate:     time.Now(),
 		PriorityId:  priorityId,
 	}
 
-	r, err := addTaskRepo.AddTask(task)
+	r, err := updateTaskRepo.UpdateTask(task)
 
 	if err != nil {
 		t.Fatal(err)
