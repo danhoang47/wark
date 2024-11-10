@@ -17,8 +17,7 @@ type getTasksRepo struct {
 func NewGetTasksRepo(db *sqlx.DB) *getTasksRepo { return &getTasksRepo{db} }
 
 func (repo *getTasksRepo) GetTasks(userId string, conds *taskmodels.GetTaskConds) []taskmodels.AggregatedTask {
-	// TODO: map doesn't preverse order
-	taskMap := map[uuid.UUID]taskmodels.AggregatedTask{}
+	var tasks []taskmodels.AggregatedTask
 
 	sqlBuilder := &strings.Builder{}
 
@@ -73,19 +72,19 @@ func (repo *getTasksRepo) GetTasks(userId string, conds *taskmodels.GetTaskConds
 			panic(err)
 		}
 
-		taskMap[task.Id] = task
+		tasks = append(tasks, task)
 	}
 
-	log.Println("task len: ", len(taskMap))
+	log.Println("task len: ", len(tasks))
 
-	if len(taskMap) == 0 {
+	if len(tasks) == 0 {
 		return []taskmodels.AggregatedTask{}
 	}
 
-	ids := make([]uuid.UUID, len(taskMap))
+	ids := make([]uuid.UUID, len(tasks))
 
-	for id := range taskMap {
-		ids = append(ids, id)
+	for _, task := range tasks {
+		ids = append(ids, task.Id)
 	}
 
 	query, args, err := sqlx.In(`
@@ -115,15 +114,11 @@ func (repo *getTasksRepo) GetTasks(userId string, conds *taskmodels.GetTaskConds
 			panic(err)
 		}
 
-		if task, ok := taskMap[taskId]; ok {
-			task.Categories = append(task.Categories, category)
+		for _, task := range tasks {
+			if strings.Compare(task.Id.String(), taskId.String()) == 0 {
+				task.Categories = append(task.Categories, category)
+			}
 		}
-	}
-
-	var tasks []taskmodels.AggregatedTask
-
-	for _, task := range taskMap {
-		tasks = append(tasks, task)
 	}
 
 	return tasks
